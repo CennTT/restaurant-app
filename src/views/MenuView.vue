@@ -59,28 +59,43 @@
 
 <script>
 import Modal from '@/components/Modal.vue';
+import axios from 'axios';
 
 export default {
   data() {
     return {
       isShowModal: false,
       selectedMenuItem: null,
-      editedMenuItem: {
-        name: '',
-        type: 'foods',
-        price: ''
-      },
-      menuItems: [
-        { name: 'Burger', type: 'foods', price: '88,110' },
-        { name: 'Pizza', type: 'foods', price: '72,400' },
-        { name: 'Salad', type: 'foods', price: '52,300' }
-      ]
+      editedMenuItem: null,
+      menuItems: []
     };
+  },
+  created() {
+    this.fetchMenuItems();
   },
   components: {
     Modal
   },
   methods: {
+    async fetchMenuItems() {
+			try {
+				const response = await axios.get(
+					"http://localhost:5000/api/v1/foodnbaverages"
+				);
+
+				if (response) {
+					const data = response.data;
+					this.menuItems = data.foods || [];
+					if (data.foods && data.foods.length > 0) {
+						this.editedMenuItem = { ...data.foods[0] };
+					}
+				} else {
+					throw new Error("Failed to fetch data");
+				}
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			}
+		},
     close() {
       this.isShowModal = false;
       this.selectedMenuItem = null;
