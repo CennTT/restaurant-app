@@ -49,9 +49,9 @@
 						<span class="text">
 							<h4>Orders</h4>
 							<div class="orders-category d-flex gap-2">
-								<h6 class="text-warning fw-bold">Open: 0</h6>
+								<h6 class="text-warning fw-bold">Open: {{ openOrdersCount }}</h6>
 								<h6 class="text-secondary fw-bold">
-									Invoiced: 6
+									Invoiced: {{ invoicedOrdersCount }}
 								</h6>
 							</div>
 						</span>
@@ -123,15 +123,21 @@
 
 <script>
 import { useMenuStore } from '@/store/menuStore';
+import { useOrderStore } from '@/store/orderStore';
+
 export default {
 	data() {
 		return {
 		foodsCount: 0,
 		beveragesCount: 0,
+		openOrdersCount: 0,
+		invoicedOrdersCount: 0,
 		};
 	},
 	created() {
 		const menuStore = useMenuStore();
+		const orderStore = useOrderStore();
+
 		menuStore.fetchMenuItems()
 		.then(() => {
 			this.calculateCounts(menuStore.menuItems);
@@ -139,14 +145,34 @@ export default {
 		.catch(error => {
 			console.error('Error fetching menu items:', error);
 		});
+
+		orderStore.fetchOrders()
+		.then(() => {
+			const orders = orderStore.orders;
+
+			this.ordersCount = orders.length;
+			this.filterOrdersByStatus(orders);
+		})
+		.catch(error => {
+			console.error('Error fetching orders:', error);
+		});
 	},
 	methods: {
 		calculateCounts(menuItems) {
-		const foods = menuItems.filter(item => item.type === 'food');
-		const beverages = menuItems.filter(item => item.type === 'beverage');
+			const foods = menuItems.filter(item => item.type === 'food');
+			const beverages = menuItems.filter(item => item.type === 'beverage');
 
-		this.foodsCount = foods.length;
-		this.beveragesCount = beverages.length;
+			this.foodsCount = foods.length;
+			this.beveragesCount = beverages.length;
+		},
+
+		filterOrdersByStatus(orders) {
+			console.log(orders)
+			const openOrders = orders.filter(order => order.status === 'open');
+			const invoicedOrders = orders.filter(order => order.status === 'invoiced');
+
+			this.openOrdersCount = openOrders.length;
+			this.invoicedOrdersCount = invoicedOrders.length;
 		},
 	},
 };
