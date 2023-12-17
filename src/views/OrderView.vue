@@ -38,10 +38,16 @@
           <div v-for="(form, index) in orderForms" :key="index">
             <div class="form-group">
               <label for="tableNumber" class="fw-semibold mb-2">Table Number:</label>
-              <select v-model="form.tableNumber" class="form-select" style="border-color: orange;">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <!-- ga ush gw lanjutin lah ya, nanti pakai dari API aj -->
+              <select v-model="form.tableNumber" class="form-select">
+                <option
+                  v-for="option in tableNumberOptions"
+                  :key="option"
+                  :value="option"
+                  :style="{ 'color': isRed(option) ? 'red' : 'green' }"
+                  :disabled="isRed(option)"
+                >
+                  {{ option }}
+                </option>
               </select>
             </div>
             <div class="form-group menu-qty d-flex gap-3">
@@ -76,7 +82,17 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="tableNumber" class="fw-semibold mb-2">Table Number:</label>
-              <input v-model="editedOrder.tableNumber" type="text" class="form-control" style="border-color: orange;">
+              <select v-model="editedOrder.tableNumber" class="form-control">
+                <option
+                  v-for="option in tableNumberOptions"
+                  :key="option"
+                  :value="option"
+                  :style="{ 'color': isRed(option) ? 'red' : 'green' }"
+                  :disabled="isRed(option)"
+                >
+                  {{ option }}
+                </option>
+              </select>          
             </div>
             <h6 class="pt-3">Order:</h6>
             <ul v-if="currentOrderDetails && currentOrderDetails.length > 0">
@@ -87,22 +103,18 @@
             <div v-else>
               No orders found.
             </div>
-            <div class="form-group mt-3">
-              <label for="newMenu" class="fw-semibold">New Menu:</label>
-              <div class="form-group menu-qty d-flex flex-row align-items-center gap-3">
-                <div class="menu-group">
-                  <select v-model="newMenuItem.menu" class="form-select" style="border-color: orange; width: 400px;">
-                    <option value="burger">Burger</option>
-                    <option value="pizza">Pizza</option>
-                  </select>
-                </div>
-                <div class="qty-group">
-                  <input v-model="newMenuItem.qty" type="number" class="form-control" style="border-color: orange; width: 80px;">
-                </div>
-              </div>
+            <div class="form-group mt-3" v-for="(item, index) in editedOrder.orderDetails" :key="index">
+              <label class="fw-semibold">Menu:</label>
+              <select v-model="item.menu" class="form-select" style="border-color: orange; width: 400px;">
+                <option value="burger">Burger</option>
+                <option value="pizza">Pizza</option>
+                <!-- Add other menu options as needed -->
+              </select>
+              <label class="fw-semibold">Qty:</label>
+              <input v-model="item.qty" type="number" class="form-control" style="border-color: orange; width: 80px;">
             </div>
             <div class="d-flex justify-content-end">
-              <button class="btn btn-sm btn-primary rounded-pill mt-2" @click="addNewForm">+ Add</button>
+              <button class="btn btn-sm btn-primary rounded-pill mt-2" @click="addNewFormInEdit">+ Add</button>
             </div>
           </div>
         </template>
@@ -111,8 +123,7 @@
           <button class="btn btn-success rounded-pill px-4" @click="saveEditedOrder">Save Changes</button>
         </template>
       </Modal>
-
-
+      
       <!-- Ini modal untuk yang List of Orders/Order Details -->
       <Modal v-if="isShowDetailsModal" :title="'Order Details'" @close="closeDetailsModal">
         <template #body>
@@ -155,6 +166,7 @@ export default {
         menu: '',
         qty: '',
       },
+      tableNumberOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
     };
   },
   components: {
@@ -194,7 +206,22 @@ export default {
       this.currentOrderDetails = this.orders[index].orderDetails; 
       this.isShowEditModal = true;
     },
+    EditModal() {
+      this.isShowEditModal = false;
+      this.editedOrder = {}; 
+    },
+    isRed(tableNumber) {
+      const tableOrder = this.orders.find(order => order.tableNumber === tableNumber);
+      return tableOrder && tableOrder.status === 'Open';
+    },
+    addNewFormInEdit() {
+      this.editedOrder.orderDetails.push({ menu: '', qty: '' });
+    },
     saveEditedOrder() {
+      const validOrderDetails = this.editedOrder.orderDetails.filter(item => {
+        return item.menu && item.qty > 0;
+      });
+      this.editedOrder.orderDetails = validOrderDetails;
       const editedIndex = this.orders.findIndex(
         order => order.tableNumber === this.editedOrder.tableNumber
       );
@@ -202,14 +229,33 @@ export default {
       if (editedIndex !== -1) {
         this.orders.splice(editedIndex, 1, this.editedOrder);
       }
+      this.isShowEditModal = false;
+      this.editedOrder = {};
+    },
 
-      this.isShowEditModal = false;
-      this.editedOrder = {}; 
+    saveOrder() {
+      for (const form of this.orderForms) {
+        if (form.tableNumber && form.menu && form.qty > 0) {
+          const existingOrderIndex = this.orders.findIndex(order => 
+            order.tableNumber === form.tableNumber && order.status === 'Open'
+          );
+
+          if (existingOrderIndex !== -1) {
+            this.orders[existingOrderIndex].orderDetails.push({ menu: form.menu, qty: form.qty });
+          } else {
+            this.orders.push({
+              tableNumber: form.tableNumber,
+              orderDetails: [{ menu: form.menu, qty: form.qty }],
+              status: 'Open',
+            });
+          }
+        }
+      }
+
+      this.close();
     },
-    closeEditModal() {
-      this.isShowEditModal = false;
-      this.editedOrder = {}; 
-    },
+
+
   },
 };
 </script>
