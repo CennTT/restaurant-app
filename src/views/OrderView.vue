@@ -15,18 +15,23 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(order, index) in orders" :key="index" :class="{ 'active-row': order.status === 'Open' }">
-            <td>{{ order.tableNumber }}</td>
-            <td>{{ order.orderDetails }}</td>
-            <td>{{ order.status }}</td>
-            <td class="d-flex">
-              <button v-if="order.status === 'Open'" class="btn btn-warning me-2 rounded-pill">Edit</button>
-              <button v-else class="btn btn-secondary me-2 rounded-pill" disabled>Edit</button>
-            </td>
-          </tr>
-        </tbody>
+        <tr v-for="(order, index) in orders" :key="index" :class="{ 'active-row': order.status === 'Open' }">
+          <td>{{ order.tableNumber }}</td>
+          <td>
+            <span v-if="order.orderDetails.length === 0">See Details</span>
+            <button class="btn btn-sm btn-outline-warning rounded-pill" v-else @click="showDetails(order.orderDetails)">See Details</button>
+          </td>
+          <td>{{ order.status }}</td>
+          <td class="d-flex">
+            <button v-if="order.status === 'Open'" class="btn btn-warning me-2 rounded-pill" @click="editOrder(index)">Edit</button>
+            <button v-else class="btn btn-secondary me-2 rounded-pill" disabled>Edit</button>
+          </td>
+        </tr>
+      </tbody>
       </table>
     </div>
+
+    <!-- Ini modal untuk yang Add New Order --> 
     <Modal v-if="isShowModal" :title="'Add New Order'" @close="close">
       <template #body>
         <div class="modal-body">
@@ -63,20 +68,76 @@
         <button class="btn bg-secondary bg-opacity-50 rounded-pill px-4" @click="close">Cancel</button>
         <button class="btn btn-success rounded-pill px-4" @click="saveOrder">Save Order</button>
       </template>
-    </Modal>
+      </Modal>
+
+      <!-- Ini Modal untuk yang Edit Order -->
+      <Modal v-if="isShowEditModal" :title="'Edit Order'" @close="closeEditModal">
+        <template #body>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="tableNumber" class="fw-semibold mb-2">Table Number:</label>
+              <input v-model="editedOrder.tableNumber" type="text" class="form-control" style="border-color: orange;">
+            </div>
+            <h6 class="pt-3">Order:</h6>
+            <ul v-if="currentOrderDetails && currentOrderDetails.length > 0">
+              <li v-for="(detail, index) in currentOrderDetails" :key="index">
+                {{ detail.menu }} - {{ detail.qty }}
+              </li>
+            </ul>
+            <div v-else>
+              No orders found.
+            </div>
+            <div class="form-group mt-3">
+              <label for="newMenu" class="fw-semibold">New Menu:</label>
+              <div class="form-group menu-qty d-flex flex-row align-items-center gap-3">
+                <div class="menu-group">
+                  <select v-model="newMenuItem.menu" class="form-select" style="border-color: orange; width: 400px;">
+                    <option value="burger">Burger</option>
+                    <option value="pizza">Pizza</option>
+                  </select>
+                </div>
+                <div class="qty-group">
+                  <input v-model="newMenuItem.qty" type="number" class="form-control" style="border-color: orange; width: 80px;">
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-sm btn-primary rounded-pill mt-2" @click="addNewForm">+ Add</button>
+            </div>
+          </div>
+        </template>
+        <template #footer>
+          <button class="btn bg-secondary bg-opacity-50 rounded-pill px-4" @click="closeEditModal">Cancel</button>
+          <button class="btn btn-success rounded-pill px-4" @click="saveEditedOrder">Save Changes</button>
+        </template>
+      </Modal>
+
+
+      <!-- Ini modal untuk yang List of Orders/Order Details -->
+      <Modal v-if="isShowDetailsModal" :title="'Order Details'" @close="closeDetailsModal">
+        <template #body>
+          <div class="modal-body">
+            <ul v-for="(detail, index) in currentOrderDetails" :key="index">
+              <li>{{ detail.menu }} - {{ detail.qty }}</li>
+            </ul>
+          </div>
+        </template>
+        <template #footer>
+          <button class="btn bg-secondary bg-opacity-50 rounded-pill px-4" @click="closeDetailsModal">Close</button>
+        </template>
+      </Modal>
   </div>
 </template>
 
 <script>
 import Modal from '@/components/Modal.vue';
-
 export default {
   data() {
     return {
       orders: [
-        { tableNumber: 1, orderDetails: 'See Details', status: 'Invoiced' },
-        { tableNumber: 3, orderDetails: 'See Details', status: 'Open' },
-        { tableNumber: 6, orderDetails: 'See Details', status: 'Open' },
+        { tableNumber: 1, orderDetails: [{ menu: 'Burger', qty: 2 }], status: 'Invoiced' },
+        { tableNumber: 3, orderDetails: [], status: 'Open' },
+        { tableNumber: 6, orderDetails: [{ menu: 'Burger', qty: 2 }], status: 'Open' }    
       ],
       isShowModal: false,
       orderForms: [
@@ -86,6 +147,14 @@ export default {
           qty: '',
         },
       ],
+      isShowDetailsModal: false,
+      currentOrderDetails: [],
+      isShowEditModal: false,
+      editedOrder: {}, 
+      newMenuItem: {
+        menu: '',
+        qty: '',
+      },
     };
   },
   components: {
@@ -106,16 +175,40 @@ export default {
       this.isShowModal = true;
     },
     saveOrder() {
-      // Add logic to save orders
       this.orders.push(...this.orderForms);
       this.close();
     },
     addNewForm() {
-      this.orderForms.push({
-        tableNumber: '',
-        menu: '',
-        qty: '',
-      });
+      const newForm = { tableNumber: this.orderForms[0].tableNumber, menu: '', qty: '' };
+      this.orderForms.push(newForm);
+    },
+    showDetails(orderDetails) {
+      this.currentOrderDetails = orderDetails;
+      this.isShowDetailsModal = true;
+    },
+    closeDetailsModal() {
+      this.isShowDetailsModal = false;
+    },
+    editOrder(index) {
+      this.editedOrder = { ...this.orders[index] };
+      this.currentOrderDetails = this.orders[index].orderDetails; 
+      this.isShowEditModal = true;
+    },
+    saveEditedOrder() {
+      const editedIndex = this.orders.findIndex(
+        order => order.tableNumber === this.editedOrder.tableNumber
+      );
+
+      if (editedIndex !== -1) {
+        this.orders.splice(editedIndex, 1, this.editedOrder);
+      }
+
+      this.isShowEditModal = false;
+      this.editedOrder = {}; 
+    },
+    closeEditModal() {
+      this.isShowEditModal = false;
+      this.editedOrder = {}; 
     },
   },
 };
