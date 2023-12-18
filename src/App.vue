@@ -21,7 +21,7 @@ export default {
 <template>
   <div>
     <Sidebar v-if="!isNonAdminView" />
-    <div :style="{ 'margin-left': dynamicMarginLeft }">
+    <div :style="{ 'margin-left': isNonAdminView ? '0' : sidebarWidth }">
       <router-view />
     </div>
   </div>
