@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { useMenuStore } from "./menuStore";
 import axios from "axios";
 
 export const useOrderStore = defineStore({
