@@ -22,9 +22,9 @@
 						<span class="text">
 							<h4>Tables</h4>
 							<div class="tables-category d-flex gap-2">
-								<h6 class="text-danger fw-bold">In Used: 6</h6>
+								<h6 class="text-danger fw-bold">In Used: {{ openOrdersCount }}</h6>
 								<h6 class="text-secondary fw-bold">
-									Available: 14
+									Available: {{ 20 - openOrdersCount }}
 								</h6>
 							</div>
 						</span>
