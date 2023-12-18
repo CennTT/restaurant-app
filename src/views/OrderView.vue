@@ -45,6 +45,13 @@
 								Edit
 							</button>
 							<button
+								v-if="order.status === 'open'"
+								class="btn btn-primary me-2 rounded-pill"
+								@click="markAsInvoiced(order)"
+							>
+								Invoiced
+							</button>
+							<button
 								v-else
 								class="btn btn-secondary me-2 rounded-pill"
 								disabled
@@ -308,6 +315,10 @@ export default {
 		callModal() {
 			this.isShowModal = true;
 		},
+		markAsInvoiced(order) {
+			order.status = 'invoiced'; 
+		},
+
 		async saveOrder() {
 			this.newOrderForms.table_number = this.currentOrderTable;
 			this.newOrderForms.items = this.orderForms.map((form) => ({
