@@ -15,9 +15,6 @@
                 <p class="sub-title">
                     Taste the joy of culinary craftsmanship in every dish, where flavors dance and memories are savored. At our restaurant, we blend passion with each ingredient, crafting a symphony for your palate. Indulge in our creations, and let every bite be a celebration of life's simple pleasures
                 </p>
-                <button>
-                    Order Now
-                </button>
             </div>
             <!-- Banner image -->
             <div class="banner-right">
