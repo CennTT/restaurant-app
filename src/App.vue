@@ -1,23 +1,34 @@
 <script>
 import Sidebar from '@/components/sidebar/Sidebar'
 import { sidebarWidth } from './components/sidebar/state';
+
 export default {
-	components: { Sidebar },
-	setup() {
-		return { sidebarWidth }
-	},
-}
+  components: { Sidebar },
+  setup() {
+    return { sidebarWidth };
+  },
+  computed: {
+    isNonAdminView() {
+      return this.$route.name === 'nonadmin';
+    },
+    dynamicMarginLeft() {
+      return this.isNonAdminView ? '0' : sidebarWidth;
+    },
+  },
+};
 </script>
 
 <template>
-	<Sidebar />
-	<div :style="{ 'margin-left': sidebarWidth }">
-		<router-view />
-	</div>
+  <div>
+    <Sidebar v-if="!isNonAdminView" />
+    <div :style="{ 'margin-left': dynamicMarginLeft }">
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <style>
-*{
-	overflow-x: none;
+* {
+  overflow-x: none;
 }
 </style>
