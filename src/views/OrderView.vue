@@ -73,10 +73,12 @@
 					>
 					<select v-model="currentOrderTable" class="form-select">
 						<option
-							v-for="option in tableNumberOptions"
-							:key="option"
-							:value="option"
-						>
+              v-for="option in tableNumberOptions"
+              :key="option"
+              :value="option"
+              :disabled="isDisabled(option)"
+              :style="{ color: getStatusColor(option) }"
+            >
 							{{ option }}
 						</option>
 					</select>
@@ -299,6 +301,14 @@ export default {
 		Modal,
 	},
 	methods: {
+    isDisabled(tableNumber) {
+      const order = this.orderss.find((order) => order.table_number === tableNumber);
+      return order && order.status === 'open';
+    },
+    getStatusColor(tableNumber) {
+      const order = this.orderss.find((order) => order.table_number === tableNumber);
+      return order && order.status === 'open' ? 'red' : 'grey';
+    },
 		mapItemIdToName(itemId) {
 			const menuItem = this.menuItems.find((item) => item.id === itemId);
 			return menuItem ? menuItem.name : "Unknown Item";
@@ -315,9 +325,22 @@ export default {
 		callModal() {
 			this.isShowModal = true;
 		},
-		markAsInvoiced(order) {
-			order.status = 'invoiced'; 
-		},
+		async markAsInvoiced(order) {
+    try {
+      const response = await axios.put(`http://localhost:5000/api/v1/orders/${order.table_number}/status`, {
+        status: 'invoiced'
+      });
+
+      if (response.status === 200) {
+        order.status = 'invoiced'; 
+        await this.fetchOrders();
+      } else {
+        console.error('Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  },
 
 		async saveOrder() {
 			this.newOrderForms.table_number = this.currentOrderTable;
