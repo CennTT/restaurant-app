@@ -34,6 +34,7 @@
                 <img :src="require('@/assets/foods/ramen.png')" alt="Ramen" :style="{ width: '400px', height: '300px' }" />
                 <img :src="require('@/assets/foods/salad.png')" alt="Salad" :style="{ width: '400px', height: '300px' }" />
                 <img :src="require('@/assets/foods/steak.png')" alt="Steak" :style="{ width: '400px', height: '300px' }" />
+                <img :src="require('@/assets/foods/pasta.png')" alt="Steak" :style="{ width: '400px', height: '300px' }" />
                 <img :src="require('@/assets/foods/sushi.png')" alt="Sushi" :style="{ width: '400px', height: '300px' }" />
                 <img :src="require('@/assets/foods/tacos.png')" alt="Tacos" :style="{ width: '400px', height: '300px' }" />
                 <img :src="require('@/assets/beverages/beer.png')" alt="Beer" :style="{ width: '400px', height: '300px' }" />
@@ -46,45 +47,10 @@
         </div>
         <h3 class="m-3 text-center pt-2">Our Menu</h3>
         <div class="menu">
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/pizza.png')" alt="Pizza" />
-                <h3 class="p-3">Pizza</h3>
-                <p>Rp 100.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/ramen.png')" alt="Ramen" />
-                <h3 class="p-3">Ramen</h3>
-                <p>Rp 50.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/pizza.png')" alt="Pizza" />
-                <h3 class="p-3">Pizza</h3>
-                <p>Rp 100.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/ramen.png')" alt="Ramen" />
-                <h3 class="p-3">Ramen</h3>
-                <p>Rp 50.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/pizza.png')" alt="Pizza" />
-                <h3 class="p-3">Pizza</h3>
-                <p>Rp 100.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/ramen.png')" alt="Ramen" />
-                <h3 class="p-3">Ramen</h3>
-                <p>Rp 50.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/pizza.png')" alt="Pizza" />
-                <h3 class="p-3">Pizza</h3>
-                <p>Rp 100.000,-</p>
-            </div>
-            <div class="menu-card">
-                <img :src="require('@/assets/foods/ramen.png')" alt="Ramen" />
-                <h3 class="p-3">Ramen</h3>
-                <p>Rp 50.000,-</p>
+            <div v-for="(menuItem, index) in menuItems" :key="index" class="menu-card">
+                <img :src="require(`@/assets/${menuItem.path}`)" alt="menuItem.name" />
+                <h3 class="p-3">{{ menuItem.name }}</h3>
+                <p>Rp {{ menuItem.price }},-</p>
             </div>
         </div>
         <!-- Footer -->
@@ -316,3 +282,31 @@ nav{
     }
   }
 </style>
+
+<script>
+import Modal from "@/components/Modal.vue";
+import { useMenuStore } from "@/store/menuStore";
+import axios from "axios";
+
+export default {
+    data() {
+        return {
+            menuItems: [], // Add this line to store menu items
+        };
+    },
+    async created() {
+        try {
+            // Fetch menu items from the API
+            const response = await axios.get("http://localhost:5000/api/v1/foodnbaverages");
+            this.menuItems = response.data.foods;
+
+            // Handle default selection or initialization if needed
+            if (this.menuItems.length > 0) {
+            // Perform any necessary initialization here
+            }
+        } catch (error) {
+            console.error("Error fetching menu items:", error);
+        }
+    }
+};
+</script>
