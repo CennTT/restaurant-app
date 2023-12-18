@@ -74,6 +74,19 @@
 						</div>
 
 						<div style="margin-bottom: 10px">
+							<label for="pict" class="fw-semibold mb-2"
+								>Pict:</label
+							>
+							<input
+								v-on="editedMenuItem.pict"
+								type="file"
+								id="pict"
+								class="form-control"
+								style="border-color: orange"
+							/>
+						</div>
+
+						<div style="margin-bottom: 10px">
 							<label for="types" class="fw-semibold mb-2"
 								>Types:</label
 							>
