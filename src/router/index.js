@@ -26,6 +26,11 @@ const routes = [
     path: '/table',
     name: 'table',
     component: () => import('../views/TableView.vue')
+  },
+  {
+    path: '/nonadmin',
+    name: 'nonadmin',
+    component: () => import('../views/NonAdminView.vue')
   }
 ]
 
