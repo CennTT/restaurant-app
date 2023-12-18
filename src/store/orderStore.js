@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useMenuStore } from "./menuStore";
 import axios from "axios";
 
 export const useOrderStore = defineStore({
@@ -18,6 +19,7 @@ export const useOrderStore = defineStore({
 				this.error =
 					error.response.data.error || "Failed to fetch orders";
 				console.error("Error fetching orders:", this.error);
+				throw error;
 			}
 		},
 	},

@@ -21,6 +21,7 @@
 						<th>Name</th>
 						<th>Type</th>
 						<th>Price</th>
+						<th>Path</th>
 						<th>Options</th>
 					</tr>
 				</thead>
@@ -34,6 +35,7 @@
 						<td>{{ menuItem.name }}</td>
 						<td>{{ menuItem.type }}</td>
 						<td>{{ menuItem.price }}</td>
+						<td>{{ menuItem.path }}</td>
 						<td class="d-flex">
 							<button
 								@click="() => callModal(menuItem)"
