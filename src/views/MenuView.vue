@@ -31,7 +31,9 @@
 						:key="index"
 						:class="{ 'active-row': menuItem === selectedMenuItem }"
 					>
-						<td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+						<td>
+							{{ (currentPage - 1) * itemsPerPage + index + 1 }}
+						</td>
 						<td>{{ menuItem.name }}</td>
 						<td>{{ menuItem.type }}</td>
 						<td>{{ menuItem.price }}</td>
@@ -78,11 +80,11 @@
 								>Pict:</label
 							>
 							<input
-								v-on="editedMenuItem.pict"
 								type="file"
 								id="pict"
 								class="form-control"
 								style="border-color: orange"
+								@change="handleFileChange"
 							/>
 						</div>
 
@@ -156,6 +158,8 @@ export default {
 			menuItems: [],
 			currentPage: 1,
 			itemsPerPage: 10,
+			filePath: "",
+			fileName: "",
 		};
 	},
 	async created() {
@@ -211,6 +215,12 @@ export default {
 
 			this.isShowModal = true;
 		},
+		handleFileChange(event) {
+			const file = event.target.files[0];
+			if (file) {
+				this.fileName = file.name;
+			}
+		},
 		async saveMenuItem() {
 			try {
 				if (this.selectedMenuItem) {
@@ -230,6 +240,15 @@ export default {
 						this.editedMenuItem.price
 					);
 					console.log(this.editedMenuItem);
+
+					this.imagePath =
+						this.editedMenuItem.type === "food"
+							? `foods/${this.fileName}`
+							: `beverages/${this.fileName}`;
+					console.log(this.imagePath);
+					this.editedMenuItem.path = this.imagePath;
+
+					console.log(this.editedMenuItem);
 					const response = await axios.post(
 						"http://localhost:5000/api/v1/create-foodnbaverage",
 						this.editedMenuItem
@@ -237,7 +256,7 @@ export default {
 					const newItem = response.data;
 
 					this.menuItems.push(newItem);
-					window.location.reload();
+					// window.location.reload();
 				}
 				this.isShowModal = false;
 			} catch (error) {
@@ -246,10 +265,20 @@ export default {
 		},
 		async deleteMenuItem(index) {
 			try {
-				const deletedItemId = this.menuItems[index].id;
+				let deletedItemId = null;
+				if (this.currentPage === 1) {
+					deletedItemId = this.menuItems[index].id;
+					console.log(deletedItemId);
+				} else {
+					const newIndex =
+						(this.currentPage - 1) * this.itemsPerPage + index;
+					deletedItemId = this.menuItems[newIndex].id;
+				}
+
 				await axios.delete(
 					`http://localhost:5000/api/v1/foodnbaverages/${deletedItemId}`
 				);
+
 				this.menuItems.splice(index, 1);
 			} catch (error) {
 				console.error("Error deleting item:", error);
