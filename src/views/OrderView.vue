@@ -73,12 +73,12 @@
 					>
 					<select v-model="currentOrderTable" class="form-select">
 						<option
-              v-for="option in tableNumberOptions"
-              :key="option"
-              :value="option"
-              :disabled="isDisabled(option)"
-              :style="{ color: getStatusColor(option) }"
-            >
+							v-for="option in tableNumberOptions"
+							:key="option"
+							:value="option"
+							:disabled="isDisabled(option)"
+							:style="{ color: getStatusColor(option) }"
+						>
 							{{ option }}
 						</option>
 					</select>
@@ -301,14 +301,23 @@ export default {
 		Modal,
 	},
 	methods: {
-    isDisabled(tableNumber) {
-      const order = this.orderss.find((order) => order.table_number === tableNumber);
-      return order && order.status === 'open';
-    },
-    getStatusColor(tableNumber) {
-      const order = this.orderss.find((order) => order.table_number === tableNumber);
-      return order && order.status === 'open' ? 'red' : 'grey';
-    },
+		isDisabled(tableNumber) {
+			const order = this.orderss.find(
+				(order) =>
+					order.table_number === tableNumber &&
+					order.status === "open"
+			);
+			return order;
+		},
+		getStatusColor(tableNumber) {
+			const order = this.orderss.find(
+				(order) =>
+					order.table_number === tableNumber &&
+					order.status === "open"
+			);
+			return order ? "red" : "grey";
+		},
+
 		mapItemIdToName(itemId) {
 			const menuItem = this.menuItems.find((item) => item.id === itemId);
 			return menuItem ? menuItem.name : "Unknown Item";
@@ -326,21 +335,24 @@ export default {
 			this.isShowModal = true;
 		},
 		async markAsInvoiced(order) {
-    try {
-      const response = await axios.put(`http://localhost:5000/api/v1/orders/${order.table_number}/status`, {
-        status: 'invoiced'
-      });
+			try {
+				const response = await axios.put(
+					`http://localhost:5000/api/v1/orders/${order.table_number}/status`,
+					{
+						status: "invoiced",
+					}
+				);
 
-      if (response.status === 200) {
-        order.status = 'invoiced'; 
-        await this.fetchOrders();
-      } else {
-        console.error('Failed to update order status');
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  },
+				if (response.status === 200) {
+					order.status = "invoiced";
+					console.log("Order status updated successfully!");
+				} else {
+					console.error("Failed to update order status");
+				}
+			} catch (error) {
+				console.error("Error updating order status:", error);
+			}
+		},
 
 		async saveOrder() {
 			this.newOrderForms.table_number = this.currentOrderTable;
@@ -406,28 +418,30 @@ export default {
 		//   return tableOrder && tableOrder.status === 'Open';
 		// },
 		addNewFormInEdit() {
-      const newForm = {
-        item_id: "",
-        quantity: "",
-      };
-      this.editedOrder.items.push(newForm);
-    },
-    async saveEditedOrder() {
-      // Validate and process the edited order details as needed
+			const newForm = {
+				item_id: "",
+				quantity: "",
+			};
+			this.editedOrder.items.push(newForm);
+		},
+		async saveEditedOrder() {
+			// Validate and process the edited order details as needed
 
-      try {
-        const response = await axios.put(`http://localhost:5000/api/v1/orders/${this.currentOrderTable}`, {
-          items: this.editedOrder.items,
-        });
+			try {
+				const response = await axios.put(
+					`http://localhost:5000/api/v1/orders/${this.currentOrderTable}`,
+					{
+						items: this.editedOrder.items,
+					}
+				);
 
-        console.log('Response from API:', response.data);
+				console.log("Response from API:", response.data);
+			} catch (error) {
+				console.error("Error sending data:", error);
+			}
 
-      } catch (error) {
-        console.error('Error sending data:', error);
-      }
-
-      this.closeEditModal();
-    },
+			this.closeEditModal();
+		},
 		mounted() {
 			this.fetchMenuItems();
 		},
