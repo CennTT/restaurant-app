@@ -25,7 +25,6 @@ export default {
     <SidebarLink to="/order" icon="fas fa-receipt">Orders</SidebarLink>
     <SidebarLink to="/table" icon="fas fa-braille">Tables</SidebarLink>
     <br>
-    <SidebarLink to="/logout" icon="fas fa-sign-out">Logout</SidebarLink>
 
     <span
       class="collapse-icon"
