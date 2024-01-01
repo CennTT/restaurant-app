@@ -20,7 +20,7 @@ export default {
       <span v-else>Administrator</span>
     </h3>
 
-    <SidebarLink to="/home" icon="fas fa-home">Home</SidebarLink>
+    <SidebarLink to="/" icon="fas fa-home">Home</SidebarLink>
     <SidebarLink to="/menu" icon="fas fa-cutlery">Menu</SidebarLink>
     <SidebarLink to="/order" icon="fas fa-receipt">Orders</SidebarLink>
     <SidebarLink to="/table" icon="fas fa-braille">Tables</SidebarLink>
